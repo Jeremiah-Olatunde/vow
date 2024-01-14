@@ -5,6 +5,7 @@ class Vow {
 
   #fQueue = [];
   #rQueue = [];
+  #aQueue = [];
 
   constructor(executor){
     try {
@@ -18,12 +19,14 @@ class Vow {
     this.#state = "fulfilled";
     this.#result = result; 
     setTimeout(() => this.#fQueue.forEach(handler => handler()));
+    setTimeout(() => this.#aQueue.forEach(handler => handler()));
   }
 
   reject = (error) => {
     this.#state = "rejected";
     this.#result = error;
     setTimeout(() => this.#rQueue.forEach(handler => handler()));
+    setTimeout(() => this.#aQueue.forEach(handler => handler()));
   }
 
   then(fHandler, rHandler){
@@ -73,6 +76,38 @@ class Vow {
         setTimeout(rWrapper);
         return;
       }      
+    })
+  }
+
+  catch(rHandler){
+    return this.then(null, rHandler)
+  }
+
+  finally(aHandler){
+    return new Vow((resolve, reject) => {
+      const aWrapper = () => {
+        try {
+          const value = aHandler?.();
+
+          if(value instanceof Vow){
+            value.then(() => resolve(this.#result), reject);
+            return;
+          } 
+
+          if(this.#state === "rejected") reject(this.#result);
+          if(this.#state === "fulfilled") resolve(this.#result);        
+            
+        } catch(error) {
+          reject(error);
+        }
+      }
+
+      if(this.#state === "pending"){
+        this.#aQueue.push(aWrapper);
+        return;
+      }
+
+      setTimeout(aWrapper);
     })
   }
 }
