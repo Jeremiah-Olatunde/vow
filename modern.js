@@ -7,7 +7,11 @@ class Vow {
   #rQueue = [];
 
   constructor(executor){
-    executor(this.resolve, this.reject);
+    try {
+      executor(this.resolve, this.reject);
+    } catch(error){
+      this.reject(error);
+    }
   }
 
   resolve = (result) => {
@@ -26,8 +30,13 @@ class Vow {
     return new Vow((resolve, reject) => {
       const fWrapper = () => {
         if(fHandler){
-          const value = fHandler(this.#result);
-          value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          try {
+            const value = fHandler(this.#result);
+            value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          } catch(error) {
+            reject(error);
+          }
+
           return;
         }
 
@@ -36,8 +45,13 @@ class Vow {
 
       const rWrapper = () => {
         if(rHandler){
-          const value = rHandler(this.#result);
-          value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          try {
+            const value = rHandler(this.#result);
+            value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          } catch(error){
+            reject(error);
+          }
+
           return;
         }
         
