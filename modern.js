@@ -21,4 +21,25 @@ class Vow {
     this.#result = error;
     setTimeout(() => this.#rQueue.forEach(handler => handler()));
   }
+
+  then(fHandler){
+    fHandler = fHandler ?? (x => x);
+
+    return new Vow((resolve, reject) => {
+      const fWrapper = () => {
+        const value = fHandler(this.#result);
+        value instanceof Vow ? value.then(resolve) : resolve(value);
+      }
+      
+      if(this.#state === "pending"){
+        this.#fQueue.push(fWrapper);
+        return;
+      }
+
+      if(this.#state === "fulfilled"){
+        setTimeout(fWrapper);
+        return;
+      }
+    })
+  }
 }
