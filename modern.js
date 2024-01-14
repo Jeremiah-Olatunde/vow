@@ -22,17 +22,31 @@ class Vow {
     setTimeout(() => this.#rQueue.forEach(handler => handler()));
   }
 
-  then(fHandler){
-    fHandler = fHandler ?? (x => x);
-
+  then(fHandler, rHandler){
     return new Vow((resolve, reject) => {
       const fWrapper = () => {
-        const value = fHandler(this.#result);
-        value instanceof Vow ? value.then(resolve) : resolve(value);
+        if(fHandler){
+          const value = fHandler(this.#result);
+          value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          return;
+        }
+
+        resolve(this.#result);
       }
+
+      const rWrapper = () => {
+        if(rHandler){
+          const value = rHandler(this.#result);
+          value instanceof Vow ? value.then(resolve, reject) : resolve(value);
+          return;
+        }
+        
+        reject(this.#result);
+      }      
       
       if(this.#state === "pending"){
         this.#fQueue.push(fWrapper);
+        this.#rQueue.push(rWrapper);
         return;
       }
 
@@ -40,6 +54,11 @@ class Vow {
         setTimeout(fWrapper);
         return;
       }
+
+      if(this.#state === "rejected"){
+        setTimeout(rWrapper);
+        return;
+      }      
     })
   }
 }
