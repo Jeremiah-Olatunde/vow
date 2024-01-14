@@ -1,0 +1,25 @@
+{
+  "name": "vow",
+  "version": "0.0.0",
+  "description": "custom implementations of the ES6 Promise class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jeremiah-Olatunde/vow.git"
+  },
+  "keywords": [
+    "Promise",
+    "ES6",
+    "callbacks",
+    "asynchronous"
+  ],
+  "author": "Jesuseun Jeremiah Olatunde",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jeremiah-Olatunde/vow/issues"
+  },
+  "homepage": "https://github.com/Jeremiah-Olatunde/vow#readme"
+}
